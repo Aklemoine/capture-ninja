@@ -587,6 +587,39 @@
         </div>
     </div>
 
+    <!-- Modal pour capture directe -->
+    <div id="capture-modal" class="modal-overlay d-none">
+        <div class="modal-content">
+            <h3>🏴 Capturer Directement</h3>
+            <p>Choisissez la faction et la durée de protection</p>
+            
+            <div class="mb-3">
+                <label class="form-label">Faction :</label>
+                <select class="form-control" id="capture-faction">
+                    <option value="Kiri">🏴 Kiri</option>
+                    <option value="Konoha">🏴 Konoha</option>
+                    <option value="Suna">🏴 Suna</option>
+                    <option value="Oto">🏴 Oto</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Durée de protection (en minutes) :</label>
+                <input type="number" class="form-control" id="capture-duration" value="120" min="1" max="1440">
+                <small class="text-muted">Durée par défaut : 120 minutes (2 heures)</small>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-modern" onclick="app.handleCapture()">
+                    🏴 Capturer
+                </button>
+                <button class="btn btn-secondary btn-modern" onclick="app.closeCaptureModal()">
+                    ❌ Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal pour saisie des escouades -->
     <div id="squad-modal" class="modal-overlay d-none">
         <div class="modal-content">
@@ -1319,11 +1352,27 @@
             }
 
             showCaptureModal(pointId) {
-                const faction = prompt('Choisir faction (Kiri, Konoha, Suna, Oto):');
-                if (faction) {
-                    this.performCombatAction(pointId, 'capture', faction);
-                    this.showSuccessMessage(`🏴 Point capturé par ${faction} !`);
+                this.currentCapturePointId = pointId;
+                document.getElementById('capture-modal').classList.remove('d-none');
+            }
+
+            closeCaptureModal() {
+                document.getElementById('capture-modal').classList.add('d-none');
+                this.currentCapturePointId = null;
+            }
+
+            handleCapture() {
+                const faction = document.getElementById('capture-faction').value;
+                const duration = parseInt(document.getElementById('capture-duration').value);
+                
+                if (!faction || !duration) {
+                    alert('❌ Veuillez remplir tous les champs !');
+                    return;
                 }
+                
+                this.performCombatAction(this.currentCapturePointId, 'capture', faction, duration);
+                this.showSuccessMessage(`🏴 Point capturé par ${faction} ! (Protection: ${duration} minutes)`);
+                this.closeCaptureModal();
             }
 
             handleLiberate(pointId) {
@@ -1331,7 +1380,7 @@
                 this.showSuccessMessage('🔓 Point libéré !');
             }
 
-            performCombatAction(pointId, actionType, faction = null) {
+            performCombatAction(pointId, actionType, faction = null, customDuration = null) {
                 // Trouver le point dans toutes les données
                 const allPoints = this.getAllPoints();
                 const point = allPoints.find(p => p.id === pointId);
@@ -1359,9 +1408,11 @@
                         break;
                 }
 
-                // Ajouter 2h de protection après chaque action (sauf libération)
+                // Ajouter protection après chaque action (sauf libération)
                 if (actionType !== 'liberate') {
-                    point.protectionTimer = new Date(Date.now() + 2 * 60 * 60 * 1000);
+                    // Utiliser la durée personnalisée si fournie, sinon 2h par défaut
+                    const durationMinutes = customDuration || 120;
+                    point.protectionTimer = new Date(Date.now() + durationMinutes * 60 * 1000);
                 }
 
                 // Rafraîchir l'affichage
