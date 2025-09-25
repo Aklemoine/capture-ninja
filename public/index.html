@@ -1520,6 +1520,7 @@
                     pointDiv.innerHTML = `
                         <h5>${point.name}</h5>
                         <p>Statut: ${point.capturedBy || 'Libre'}</p>
+                        ${this.hasPermission('write') ? `
                         <div class="btn-group">
                             <button class="btn btn-sm btn-danger btn-modern" onclick="app.showSquadModal('attack-success', '${point.id}')">
                                 <i class="fas fa-crosshairs"></i> Attaque Réussie
@@ -1528,6 +1529,13 @@
                                 <i class="fas fa-times"></i> Attaque Ratée
                             </button>
                         </div>
+                        ` : `
+                        <div class="mt-3">
+                            <span class="badge bg-info">
+                                <i class="fas fa-eye"></i> Mode Lecture Seule
+                            </span>
+                        </div>
+                        `}
                     `;
                     container.appendChild(pointDiv);
                 });
@@ -1579,6 +1587,7 @@
                     pointDiv.innerHTML = `
                         <h5>${point.name}</h5>
                         <p>🏴 Contrôlé par Kiri</p>
+                        ${this.hasPermission('write') ? `
                         <div class="btn-group">
                             <button class="btn btn-sm btn-success btn-modern" onclick="app.showSquadModal('defense-success', '${point.id}')">
                                 <i class="fas fa-shield-alt"></i> Défense Réussie
@@ -1587,6 +1596,13 @@
                                 <i class="fas fa-times"></i> Défense Ratée
                             </button>
                         </div>
+                        ` : `
+                        <div class="mt-3">
+                            <span class="badge bg-info">
+                                <i class="fas fa-eye"></i> Mode Lecture Seule
+                            </span>
+                        </div>
+                        `}
                     `;
                     container.appendChild(pointDiv);
                 });
