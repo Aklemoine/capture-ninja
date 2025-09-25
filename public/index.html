@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Ninja</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff; 
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Navigation moderne */
+        .navbar { 
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-btn { 
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff; 
+            margin: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover { 
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn.active { 
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Cards modernes */
+        .modern-card { 
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 20px 0; 
+            padding: 25px; 
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .modern-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Boutons modernes */
+        .btn-modern { 
+            margin: 4px; 
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .btn-modern:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-modern:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Liens modernes */
+        .modern-link { 
+            color: #00d4ff; 
+            text-decoration: none; 
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .modern-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            transition: width 0.3s ease;
+        }
+
+        .modern-link:hover::after {
+            width: 100%;
+        }
+
+        .modern-link:hover { 
+            color: #00a8cc; 
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Timer badge moderne */
+        .timer-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Messages de succès */
+        .success-message {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+            z-index: 1000;
+            animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%) scale(0.8); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+
+        /* Tables modernes */
+        .modern-table {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+        }
+
+        .modern-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+            padding: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modern-table td {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+        }
+
+        /* Modal moderne */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px) scale(0.9); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* Navigation par secteur */
+        .sector-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .sector-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .sector-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .sector-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Breadcrumb moderne */
+        .breadcrumb-modern {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .breadcrumb-modern span {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .breadcrumb-modern .separator {
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-btn {
+                margin: 4px;
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+            
+            .modern-card {
+                padding: 20px;
+                margin: 15px 0;
+            }
+            
+            .sector-nav {
+                gap: 10px;
+            }
+            
+            .sector-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand">Capture Ninja</span>
+            <div class="navbar-nav d-flex flex-row">
+                <button class="nav-btn btn" data-tab="map">🗺️ Carte</button>
+                <button class="nav-btn btn" data-tab="sectors">📋 Liste des Points</button>
+                <button class="nav-btn btn" data-tab="kiri-conquest">⚔️ Conquête de Kiri</button>
+                <button class="nav-btn btn" data-tab="stats">📊 Classement</button>
+            </div>
+            <div class="navbar-nav d-flex flex-row">
+                <span id="user-info" class="text-light me-3 d-none">
+                    <i class="fas fa-user"></i> <span id="current-user"></span>
+                    <small class="text-muted" id="user-role"></small>
+                </span>
+                <button class="btn btn-outline-light btn-sm" onclick="app.logout()" id="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Breadcrumb moderne -->
+        <div id="breadcrumb" class="breadcrumb-modern d-none">
+            <span id="breadcrumb-content"></span>
+        </div>
+
+        <!-- Onglet Carte -->
+        <div id="map-tab" class="tab-content">
+            <h2>🗺️ Carte Interactive</h2>
+            
+            <!-- Navigation des secteurs -->
+            <div class="sector-nav">
+                <button class="sector-btn" onclick="app.showSector('S1')">🔥 Secteur 1 - Pays du Feu</button>
+                <button class="sector-btn" onclick="app.showSector('S2')">🌪️ Secteur 2 - Pays du Vent</button>
+                <button class="sector-btn" onclick="app.showSector('S3')">🎵 Secteur 3 - Pays du Son</button>
+                <button class="sector-btn" onclick="app.showSector('S4')">💧 Secteur 4 - Pays de l'Eau</button>
+                <button class="sector-btn" onclick="app.showSector('S5')">⚖️ Secteur 5 - Pays Neutre</button>
+            </div>
+
+            <!-- Affichage des pays du secteur -->
+            <div id="sector-countries" class="row"></div>
+
+            <!-- Affichage de la carte du pays -->
+            <div id="map-display" class="mt-4 d-none">
+                <div class="modern-card">
+                    <h3 id="map-country-title"></h3>
+                    <div class="map-container">
+                        <img id="country-map-image" src="" alt="Carte du pays" class="img-fluid border rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Liste des Points -->
+        <div id="sectors-tab" class="tab-content d-none">
+            <h2>📋 Liste des Points</h2>
+            
+            <!-- Navigation des secteurs -->
+            <div class="sector-nav">
+                <button class="sector-btn" onclick="app.showSector('S1')">🔥 Secteur 1 - Pays du Feu</button>
+                <button class="sector-btn" onclick="app.showSector('S2')">🌪️ Secteur 2 - Pays du Vent</button>
+                <button class="sector-btn" onclick="app.showSector('S3')">🎵 Secteur 3 - Pays du Son</button>
+                <button class="sector-btn" onclick="app.showSector('S4')">💧 Secteur 4 - Pays de l'Eau</button>
+                <button class="sector-btn" onclick="app.showSector('S5')">⚖️ Secteur 5 - Pays Neutre</button>
+            </div>
+
+            <!-- Affichage des pays du secteur -->
+            <div id="sector-countries-list" class="row"></div>
+
+            <!-- Affichage des points du pays -->
+            <div id="country-points" class="d-none mt-4">
+                <div class="modern-card">
+                    <h3 id="country-title"></h3>
+                    <div id="points-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Conquête de Kiri -->
+        <div id="kiri-conquest-tab" class="tab-content d-none">
+            <h2>⚔️ Conquête de Kiri</h2>
+            
+            <!-- Sous-onglets pour la conquête -->
+            <div class="sector-nav">
+                <button class="sector-btn" onclick="app.showKiriTab('attackable')">
+                    🎯 Points Attaquables
+                </button>
+                <button class="sector-btn" onclick="app.showKiriTab('soon-attackable')">
+                    ⏰ Bientôt Attaquables
+                </button>
+                <button class="sector-btn" onclick="app.showKiriTab('owned')">
+                    🏴 Possédés par Kiri
+                </button>
+            </div>
+
+            <!-- Contenu des sous-onglets -->
+            <div id="kiri-attackable" class="kiri-tab-content">
+                <div class="modern-card">
+                    <h3>🎯 Points Attaquables</h3>
+                    <p>Points libres ou dont le timer de protection a expiré</p>
+                    <div id="attackable-points-list"></div>
+                </div>
+            </div>
+
+            <div id="kiri-soon-attackable" class="kiri-tab-content d-none">
+                <div class="modern-card">
+                    <h3>⏰ Bientôt Attaquables</h3>
+                    <p>Points dont le timer expire dans les 20 prochaines minutes</p>
+                    <div id="soon-attackable-points-list"></div>
+                </div>
+            </div>
+
+            <div id="kiri-owned" class="kiri-tab-content d-none">
+                <div class="modern-card">
+                    <h3>🏴 Possédés par Kiri</h3>
+                    <p>Points actuellement contrôlés par Kiri</p>
+                    <div id="owned-points-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Classement -->
+        <div id="stats-tab" class="tab-content d-none">
+            <h2>📊 Classement</h2>
+            
+            <!-- Statistiques globales -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="modern-card text-center">
+                        <h4>🏴 Kiri</h4>
+                        <h2 id="kiri-points">0</h2>
+                        <p>Points contrôlés</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="modern-card text-center">
+                        <h4>🔥 Konoha</h4>
+                        <h2 id="konoha-points">0</h2>
+                        <p>Points contrôlés</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="modern-card text-center">
+                        <h4>🌪️ Suna</h4>
+                        <h2 id="suna-points">0</h2>
+                        <p>Points contrôlés</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="modern-card text-center">
+                        <h4>🎵 Oto</h4>
+                        <h2 id="oto-points">0</h2>
+                        <p>Points contrôlés</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classement des joueurs Kiri -->
+            <div class="modern-card">
+                <h3>🏆 Top Joueurs Kiri (Escouade)</h3>
+                <div class="table-responsive">
+                    <table class="table table-dark modern-table">
+                        <thead>
+                            <tr>
+                                <th>Rang</th>
+                                <th>Joueur</th>
+                                <th>Winrate</th>
+                                <th>Attaques</th>
+                                <th>Défenses</th>
+                                <th>Points Gagnés</th>
+                                <th>Points Perdus</th>
+                                <th>Net</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kiri-players-table">
+                            <!-- Les données seront générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Statistiques des factions -->
+            <div class="modern-card">
+                <h3>📈 Statistiques Globales des Factions</h3>
+                <div class="table-responsive">
+                    <table class="table table-dark modern-table">
+                        <thead>
+                            <tr>
+                                <th>Faction</th>
+                                <th>Points Contrôlés</th>
+                                <th>Attaques Réussies</th>
+                                <th>Défenses Réussies</th>
+                                <th>Winrate Global</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faction-stats-table">
+                            <!-- Les données seront générées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>🔐 Connexion</h3>
+            <p>Connectez-vous pour accéder au système de capture</p>
+            
+            <div class="mb-3">
+                <label class="form-label">Nom d'utilisateur :</label>
+                <input type="text" class="form-control" id="login-username" placeholder="Votre nom d'utilisateur">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mot de passe :</label>
+                <input type="password" class="form-control" id="login-password" placeholder="Votre mot de passe">
+            </div>
+            
+           <div class="d-flex gap-2">
+               <button class="btn btn-primary btn-modern" onclick="app.login()">
+                   🔑 Se connecter
+               </button>
+               <button class="btn btn-outline-secondary btn-modern" onclick="app.loginAsVisitor()">
+                   👁️ Simple visiteur
+               </button>
+           </div>
+            
+            <div class="mt-3">
+                <small class="text-muted">
+                    <strong>Rôles disponibles :</strong><br>
+                    👑 Général de la Brume - Accès complet<br>
+                    🛡️ Capitaine de la Brume - Accès complet<br>
+                    ⚔️ Bras Droit - Accès complet<br>
+                    🏛️ Pilier - Accès complet<br>
+                    👁️ Observateur - Lecture seule<br><br>
+                    <strong>Ou cliquez sur "Simple visiteur" pour un accès lecture seule sans compte</strong>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour saisie des escouades -->
+    <div id="squad-modal" class="modal-overlay d-none">
+        <div class="modal-content">
+            <h3>👥 Saisie de l'Escouade</h3>
+            <p>Entrez les 5 membres de l'escouade pour cette action :</p>
+            
+            <!-- Sélection de faction pour attaque réussie et défense ratée -->
+            <div id="faction-selection" class="mb-3 d-none">
+                <label class="form-label">Nouveau propriétaire :</label>
+                <select class="form-select" id="new-faction">
+                    <option value="Kiri">🏴 Kiri</option>
+                    <option value="Konoha">🔥 Konoha</option>
+                    <option value="Suna">🌪️ Suna</option>
+                    <option value="Oto">🎵 Oto</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Membre 1 :</label>
+                <input type="text" class="form-control" id="member1" placeholder="Nom du joueur">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Membre 2 :</label>
+                <input type="text" class="form-control" id="member2" placeholder="Nom du joueur">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Membre 3 :</label>
+                <input type="text" class="form-control" id="member3" placeholder="Nom du joueur">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Membre 4 :</label>
+                <input type="text" class="form-control" id="member4" placeholder="Nom du joueur">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Membre 5 :</label>
+                <input type="text" class="form-control" id="member5" placeholder="Nom du joueur">
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-modern" onclick="app.confirmSquadAction()">
+                    ✅ Confirmer
+                </button>
+                <button class="btn btn-secondary btn-modern" onclick="app.cancelSquadAction()">
+                    ❌ Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CaptureNinjaApp {
+            constructor() {
+                this.currentTab = 'map';
+                this.currentSector = null;
+                this.currentCountry = null;
+                this.pendingAction = null;
+                this.pendingPointId = null;
+                
+                // Système d'authentification
+                this.currentUser = null;
+                this.currentRole = null;
+                this.users = this.initializeUsers();
+                
+                // Données des joueurs Kiri avec stats détaillées
+                this.kiriPlayers = new Map();
+                this.initializeKiriPlayers();
+                
+                // Données persistantes des points
+                this.pointsData = this.initializePointsData();
+                
+                this.init();
+            }
+
+            initializeUsers() {
+                // Utilisateurs avec rôles et permissions
+                return {
+                    // Hauts gradés - Accès complet
+                    'general_brume': { username: 'General Brume', password: 'general123', role: 'general', permissions: ['read', 'write', 'admin'] },
+                    'capitaine_brume': { username: 'Capitaine Brume', password: 'capitaine123', role: 'capitaine', permissions: ['read', 'write', 'admin'] },
+                    'bras_droit': { username: 'Bras Droit', password: 'brasdroit123', role: 'bras_droit', permissions: ['read', 'write', 'admin'] },
+                    'pilier': { username: 'Pilier', password: 'pilier123', role: 'pilier', permissions: ['read', 'write', 'admin'] },
+                    
+                    // Observateurs - Lecture seule
+                    'observateur1': { username: 'Observateur 1', password: 'obs123', role: 'observateur', permissions: ['read'] },
+                    'observateur2': { username: 'Observateur 2', password: 'obs456', role: 'observateur', permissions: ['read'] }
+                };
+            }
+
+            initializeKiriPlayers() {
+                // Ladder complètement vide - on repart à zéro
+                this.kiriPlayers.clear();
+            }
+
+            initializePointsData() {
+                return {
+                    // Secteur 1
+                    'Pays du Feu (Konoha)': [
+                        { id: 'feu-1', name: 'Clairière vallée de la fin', capturedBy: null },
+                        { id: 'feu-2', name: 'La Clairière de Konoha', capturedBy: null },
+                        { id: 'feu-3', name: 'Le hameau du pays du Feu', capturedBy: null }
+                    ],
+                    'Pays des Rivières': [
+                        { id: 'riv-1', name: 'La tour de la plage', capturedBy: null },
+                        { id: 'riv-2', name: 'Le temple du feu', capturedBy: null },
+                        { id: 'riv-3', name: 'La Mine', capturedBy: null },
+                        { id: 'riv-4', name: 'La Cascade', capturedBy: null },
+                        { id: 'riv-5', name: 'La statue qui pleure', capturedBy: null }
+                    ],
+                    // Secteur 2
+                    'Pays du Vent (Suna)': [
+                        { id: 'vent-1', name: 'Statue de Jade', capturedBy: null },
+                        { id: 'vent-2', name: 'Tête de Dragon', capturedBy: null },
+                        { id: 'vent-3', name: 'Porte du Désert', capturedBy: null }
+                    ],
+                    'Pays des Roches': [
+                        { id: 'roches-1', name: 'Pont des mineurs', capturedBy: null },
+                        { id: 'roches-2', name: 'Tour noir', capturedBy: null },
+                        { id: 'roches-3', name: 'Le Dojo', capturedBy: null },
+                        { id: 'roches-4', name: 'Hameau des roches', capturedBy: null },
+                        { id: 'roches-5', name: 'Cascade roche', capturedBy: null }
+                    ],
+                    // Secteur 3
+                    'Pays du Son (Oto)': [
+                        { id: 'son-1', name: 'Vallée de la Mort', capturedBy: null },
+                        { id: 'son-2', name: 'Enclave Enneigée', capturedBy: null }
+                    ],
+                    'Pays du Fer': [
+                        { id: 'fer-1', name: 'Plaine Enneigée', capturedBy: null },
+                        { id: 'fer-2', name: 'Arche Glacée', capturedBy: null },
+                        { id: 'fer-3', name: 'Cratère', capturedBy: null },
+                        { id: 'fer-4', name: 'Lac du Serpent', capturedBy: null },
+                        { id: 'fer-5', name: 'Plaine des Samouraïs', capturedBy: null },
+                        { id: 'fer-6', name: 'Vestige du dévoreur', capturedBy: null }
+                    ],
+                    'Pays des Sources Chaudes': [
+                        { id: 'sources-1', name: 'La Vallée des geysers', capturedBy: null },
+                        { id: 'sources-2', name: 'Montée des sources chaudes', capturedBy: null },
+                        { id: 'sources-3', name: 'Le Lac de la Grenouille', capturedBy: null },
+                        { id: 'sources-4', name: 'Vallée des Pics Brûlants', capturedBy: null }
+                    ],
+                    // Secteur 4
+                    'Pays des Cerisiers': [
+                        { id: 'cerisiers-1', name: 'Passage du son', capturedBy: null },
+                        { id: 'cerisiers-2', name: 'Village des Cerisiers', capturedBy: null },
+                        { id: 'cerisiers-3', name: 'Vallée du panda', capturedBy: null },
+                        { id: 'cerisiers-4', name: 'Dojo du printemps', capturedBy: null },
+                        { id: 'cerisiers-5', name: 'Point oublié', capturedBy: null }
+                    ],
+                    'Kiri': [
+                        { id: 'kiri-1', name: 'Kiri1', capturedBy: null },
+                        { id: 'kiri-2', name: 'Kiri2', capturedBy: null },
+                        { id: 'kiri-3', name: 'Kiri3', capturedBy: null }
+                    ],
+                    // Secteur 5
+                    'Pays des Oiseaux': [
+                        { id: 'oiseaux-1', name: 'La Plaine', capturedBy: null },
+                        { id: 'oiseaux-2', name: 'La Pente', capturedBy: null },
+                        { id: 'oiseaux-3', name: 'La Croisée des Mondes', capturedBy: null },
+                        { id: 'oiseaux-4', name: 'La Vallée', capturedBy: null }
+                    ],
+                    'Pays du Silence': [
+                        { id: 'silence-1', name: 'Passage sans Bruit', capturedBy: null },
+                        { id: 'silence-2', name: 'Les Corniches', capturedBy: null },
+                        { id: 'silence-3', name: 'Le Secret du Bruit', capturedBy: null },
+                        { id: 'silence-4', name: 'Les Ossements', capturedBy: null }
+                    ]
+                };
+            }
+
+            init() {
+                this.initNavigation();
+                this.updateStats();
+                this.showTab('map');
+                
+                // Vérifier si l'utilisateur est déjà connecté
+                this.checkAuth();
+            }
+
+            // Méthodes d'authentification
+            login() {
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value.trim();
+                
+                if (!username || !password) {
+                    alert('Veuillez remplir tous les champs !');
+                    return;
+                }
+                
+                // Chercher l'utilisateur
+                const user = Object.values(this.users).find(u => 
+                    u.username.toLowerCase() === username.toLowerCase() && u.password === password
+                );
+                
+                if (user) {
+                    this.currentUser = user.username;
+                    this.currentRole = user.role;
+                    
+                    // Masquer le modal de login
+                    document.getElementById('login-modal').classList.add('d-none');
+                    
+                    // Afficher les infos utilisateur
+                    this.updateUserInterface();
+                    
+                    // Rafraîchir l'affichage selon les permissions
+                    this.refreshDisplay();
+                    
+                    this.showSuccessMessage(`✅ Bienvenue ${user.username} !`);
+                } else {
+                    alert('❌ Nom d\'utilisateur ou mot de passe incorrect !');
+                }
+            }
+
+            logout() {
+                this.currentUser = null;
+                this.currentRole = null;
+                
+                // Masquer les infos utilisateur
+                document.getElementById('user-info').classList.add('d-none');
+                document.getElementById('logout-btn').style.display = 'none';
+                
+                // Afficher le modal de login
+                document.getElementById('login-modal').classList.remove('d-none');
+                
+                // Rafraîchir l'affichage
+                this.refreshDisplay();
+                
+                this.showSuccessMessage('👋 Déconnexion réussie !');
+            }
+
+            loginAsVisitor() {
+                // Connexion automatique en tant qu'observateur
+                this.currentUser = 'Visiteur';
+                this.currentRole = 'observateur';
+                
+                // Masquer le modal de login
+                document.getElementById('login-modal').classList.add('d-none');
+                
+                // Afficher les infos utilisateur
+                this.updateUserInterface();
+                
+                // Rafraîchir l'affichage selon les permissions
+                this.refreshDisplay();
+                
+                this.showSuccessMessage('👁️ Bienvenue en mode visiteur !');
+            }
+
+            checkAuth() {
+                // Pour l'instant, on affiche toujours le modal de login
+                // Dans une vraie app, on vérifierait le localStorage ou les cookies
+                document.getElementById('login-modal').classList.remove('d-none');
+            }
+
+            updateUserInterface() {
+                const userInfo = document.getElementById('user-info');
+                const currentUserSpan = document.getElementById('current-user');
+                const userRoleSpan = document.getElementById('user-role');
+                const logoutBtn = document.getElementById('logout-btn');
+                
+                currentUserSpan.textContent = this.currentUser;
+                userRoleSpan.textContent = this.getRoleDisplayName(this.currentRole);
+                
+                userInfo.classList.remove('d-none');
+                logoutBtn.style.display = 'block';
+            }
+
+            getRoleDisplayName(role) {
+                const roleNames = {
+                    'general': '👑 Général de la Brume',
+                    'capitaine': '🛡️ Capitaine de la Brume',
+                    'bras_droit': '⚔️ Bras Droit',
+                    'pilier': '🏛️ Pilier',
+                    'observateur': '👁️ Observateur'
+                };
+                return roleNames[role] || role;
+            }
+
+            hasPermission(permission) {
+                if (!this.currentUser) return false;
+                
+                // Cas spécial pour le visiteur
+                if (this.currentUser === 'Visiteur' && this.currentRole === 'observateur') {
+                    return permission === 'read';
+                }
+                
+                const user = Object.values(this.users).find(u => u.username === this.currentUser);
+                return user && user.permissions.includes(permission);
+            }
+
+            initNavigation() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const tab = btn.getAttribute('data-tab');
+                        this.showTab(tab);
+                    });
+                });
+            }
+
+            // Nouvelle navigation par secteur
+            showSector(sectorId) {
+                this.currentSector = sectorId;
+                this.currentCountry = null;
+                
+                // Mettre à jour les boutons de secteur
+                document.querySelectorAll('.sector-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                // Afficher les pays du secteur
+                this.displaySectorCountries(sectorId);
+                
+                // Mettre à jour le breadcrumb
+                this.updateBreadcrumb();
+            }
+
+            displaySectorCountries(sectorId) {
+                const countries = this.getCountriesForSector(sectorId);
+                const container = this.currentTab === 'map' ? 
+                    document.getElementById('sector-countries') : 
+                    document.getElementById('sector-countries-list');
+                
+                container.innerHTML = '';
+                
+                countries.forEach(country => {
+                    const countryDiv = document.createElement('div');
+                    countryDiv.className = 'col-md-6 mb-3';
+                    countryDiv.innerHTML = `
+                        <div class="modern-card">
+                            <h5>${country.name}</h5>
+                            <p>${country.points} points</p>
+                            <button class="btn btn-primary btn-modern" onclick="app.showCountry('${country.name}')">
+                                ${this.currentTab === 'map' ? '🗺️ Voir la carte' : '📋 Voir les points'}
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(countryDiv);
+                });
+                
+                // Masquer l'affichage des points/carte
+                if (this.currentTab === 'map') {
+                    document.getElementById('map-display').classList.add('d-none');
+                } else {
+                    document.getElementById('country-points').classList.add('d-none');
+                }
+            }
+
+            showCountry(countryName) {
+                this.currentCountry = countryName;
+                this.updateBreadcrumb();
+                
+                if (this.currentTab === 'map') {
+                    this.showMapForCountry(countryName);
+                } else {
+                    this.showPointsForCountry(countryName);
+                }
+            }
+
+            updateBreadcrumb() {
+                const breadcrumb = document.getElementById('breadcrumb');
+                const breadcrumbContent = document.getElementById('breadcrumb-content');
+                
+                if (this.currentSector && this.currentCountry) {
+                    const sectorName = this.getSectorName(this.currentSector);
+                    breadcrumbContent.innerHTML = `
+                        <span>${sectorName}</span>
+                        <span class="separator">></span>
+                        <span>${this.currentCountry}</span>
+                    `;
+                    breadcrumb.classList.remove('d-none');
+                } else if (this.currentSector) {
+                    const sectorName = this.getSectorName(this.currentSector);
+                    breadcrumbContent.innerHTML = `<span>${sectorName}</span>`;
+                    breadcrumb.classList.remove('d-none');
+                } else {
+                    breadcrumb.classList.add('d-none');
+                }
+            }
+
+            getSectorName(sectorId) {
+                const sectorNames = {
+                    'S1': '🔥 Secteur 1 - Pays du Feu',
+                    'S2': '🌪️ Secteur 2 - Pays du Vent',
+                    'S3': '🎵 Secteur 3 - Pays du Son',
+                    'S4': '💧 Secteur 4 - Pays de l\'Eau',
+                    'S5': '⚖️ Secteur 5 - Pays Neutre'
+                };
+                return sectorNames[sectorId] || sectorId;
+            }
+
+            showTab(tabName) {
+                this.currentTab = tabName;
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.add('d-none');
+                });
+                document.getElementById(`${tabName}-tab`).classList.remove('d-none');
+                
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                
+                // Réinitialiser la navigation par secteur
+                this.currentSector = null;
+                this.currentCountry = null;
+                this.updateBreadcrumb();
+            }
+
+            // Système d'escouades
+            showSquadModal(actionType, pointId) {
+                this.pendingAction = actionType;
+                this.pendingPointId = pointId;
+                
+                // Vider les champs
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById(`member${i}`).value = '';
+                }
+                
+                // Afficher/masquer la sélection de faction selon l'action
+                const factionSelection = document.getElementById('faction-selection');
+                if (actionType === 'attack-success' || actionType === 'defense-failed') {
+                    factionSelection.classList.remove('d-none');
+                } else {
+                    factionSelection.classList.add('d-none');
+                }
+                
+                // Afficher le modal
+                document.getElementById('squad-modal').classList.remove('d-none');
+            }
+
+            confirmSquadAction() {
+                const squadMembers = [];
+                for (let i = 1; i <= 5; i++) {
+                    const member = document.getElementById(`member${i}`).value.trim();
+                    if (member) {
+                        squadMembers.push(member);
+                    }
+                }
+                
+                if (squadMembers.length === 0) {
+                    alert('Veuillez entrer au moins un membre de l\'escouade !');
+                    return;
+                }
+                
+                // Fermer le modal
+                document.getElementById('squad-modal').classList.add('d-none');
+                
+                // Exécuter l'action
+                this.executeCombatAction(this.pendingAction, this.pendingPointId, squadMembers);
+                
+                // Réinitialiser
+                this.pendingAction = null;
+                this.pendingPointId = null;
+            }
+
+            cancelSquadAction() {
+                document.getElementById('squad-modal').classList.add('d-none');
+                this.pendingAction = null;
+                this.pendingPointId = null;
+            }
+
+            executeCombatAction(actionType, pointId, squadMembers) {
+                // Trouver le point dans les données originales
+                const point = this.findPointById(pointId);
+                
+                if (!point) return;
+
+                // Mettre à jour les stats des joueurs
+                this.updatePlayerStats(squadMembers, actionType, point);
+
+                // Appliquer l'action
+                switch (actionType) {
+                    case 'attack-success':
+                        const newFaction = document.getElementById('new-faction').value;
+                        point.capturedBy = newFaction;
+                        this.showSuccessMessage(`✅ Attaque réussie ! Point capturé par ${newFaction} !`);
+                        break;
+                    case 'attack-failed':
+                        this.showSuccessMessage('❌ Attaque ratée ! Le point reste aux défenseurs.');
+                        break;
+                    case 'defense-success':
+                        this.showSuccessMessage('🛡️ Défense réussie ! Le point reste aux défenseurs.');
+                        break;
+                    case 'defense-failed':
+                        const newFactionDef = document.getElementById('new-faction').value;
+                        point.capturedBy = newFactionDef;
+                        this.showSuccessMessage(`💥 Défense ratée ! Point capturé par ${newFactionDef} !`);
+                        break;
+                }
+
+                // Ajouter 2h de protection après chaque action (120 minutes)
+                point.protectionTimer = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+                // Rafraîchir l'affichage
+                this.refreshDisplay();
+            }
+
+            findPointById(pointId) {
+                // Chercher dans les données persistantes
+                for (const countryName in this.pointsData) {
+                    const points = this.pointsData[countryName];
+                    const point = points.find(p => p.id === pointId);
+                    if (point) return point;
+                }
+                return null;
+            }
+
+            updatePlayerStats(squadMembers, actionType, point) {
+                squadMembers.forEach(memberName => {
+                    const normalizedName = memberName.toLowerCase();
+                    let player = this.kiriPlayers.get(normalizedName);
+                    
+                    if (!player) {
+                        // Créer un nouveau joueur
+                        player = {
+                            name: memberName,
+                            winrate: 0,
+                            attacks: 0,
+                            defenses: 0,
+                            pointsWon: 0,
+                            pointsLost: 0,
+                            net: 0,
+                            totalActions: 0
+                        };
+                        this.kiriPlayers.set(normalizedName, player);
+                    }
+                    
+                    // Mettre à jour les stats selon l'action
+                    switch (actionType) {
+                        case 'attack-success':
+                            player.attacks++;
+                            player.pointsWon++;
+                            player.net++;
+                            break;
+                        case 'attack-failed':
+                            player.attacks++;
+                            player.pointsLost++;
+                            player.net--;
+                            break;
+                        case 'defense-success':
+                            player.defenses++;
+                            player.pointsWon++;
+                            player.net++;
+                            break;
+                        case 'defense-failed':
+                            player.defenses++;
+                            player.pointsLost++;
+                            player.net--;
+                            break;
+                    }
+                    
+                    player.totalActions = player.attacks + player.defenses;
+                    if (player.totalActions > 0) {
+                        player.winrate = Math.round(((player.pointsWon / player.totalActions) * 100));
+                    }
+                });
+            }
+
+            showPointsForCountry(countryName) {
+                document.getElementById('country-points').classList.remove('d-none');
+                document.getElementById('country-title').textContent = `Points de ${countryName}`;
+
+                const points = this.getMockPoints(countryName);
+                const pointsList = document.getElementById('points-list');
+                
+                pointsList.innerHTML = '';
+                points.forEach(point => {
+                    const pointDiv = document.createElement('div');
+                    pointDiv.className = 'modern-card';
+                    
+                    let timerHtml = '';
+                    if (point.protectionTimer) {
+                        const timerEnd = new Date(point.protectionTimer);
+                        const now = new Date();
+                        const timeLeft = Math.max(0, timerEnd - now);
+                        const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+                        const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+                        
+                        if (timeLeft > 0) {
+                            timerHtml = `<p><span class="timer-badge">⏰ Protection: ${hoursLeft}h ${minutesLeft}min</span></p>`;
+                        }
+                    }
+
+                    pointDiv.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5>${point.name}</h5>
+                                <p>Statut: ${point.capturedBy || 'Libre'}</p>
+                            </div>
+                            <div>
+                                ${timerHtml}
+                            </div>
+                        </div>
+                        ${this.hasPermission('write') ? `
+                        <div class="btn-group mt-3">
+                            <button class="btn btn-sm btn-danger btn-modern" onclick="app.showSquadModal('attack-success', '${point.id}')">
+                                <i class="fas fa-crosshairs"></i> Attaque Réussie
+                            </button>
+                            <button class="btn btn-sm btn-warning btn-modern" onclick="app.showSquadModal('attack-failed', '${point.id}')">
+                                <i class="fas fa-times"></i> Attaque Ratée
+                            </button>
+                            <button class="btn btn-sm btn-success btn-modern" onclick="app.showSquadModal('defense-success', '${point.id}')">
+                                <i class="fas fa-shield-alt"></i> Défense Réussie
+                            </button>
+                            <button class="btn btn-sm btn-warning btn-modern" onclick="app.showSquadModal('defense-failed', '${point.id}')">
+                                <i class="fas fa-times"></i> Défense Ratée
+                            </button>
+                            <button class="btn btn-sm btn-primary btn-modern" onclick="app.showCaptureModal('${point.id}')">
+                                <i class="fas fa-flag"></i> Capturer Directement
+                            </button>
+                            <button class="btn btn-sm btn-secondary btn-modern" onclick="app.handleLiberate('${point.id}')">
+                                <i class="fas fa-unlock"></i> Libérer
+                            </button>
+                        </div>
+                        ` : `
+                        <div class="mt-3">
+                            <span class="badge bg-info">
+                                <i class="fas fa-eye"></i> Mode Lecture Seule
+                            </span>
+                        </div>
+                        `}
+                    `;
+                    pointsList.appendChild(pointDiv);
+                });
+            }
+
+            getMockPoints(countryName) {
+                return this.pointsData[countryName] || [];
+            }
+
+            getMockPointsOld(countryName) {
+                const mockPoints = {
+                    // Secteur 1
+                    'Pays du Feu (Konoha)': [
+                        { id: 'feu-1', name: 'Clairière vallée de la fin', capturedBy: 'Konoha', protectionTimer: new Date(Date.now() + 1 * 60 * 60 * 1000) }, // 1h restante
+                        { id: 'feu-2', name: 'La Clairière de Konoha', capturedBy: 'Kiri', protectionTimer: new Date(Date.now() + 30 * 60 * 1000) }, // 30min restantes
+                        { id: 'feu-3', name: 'Le hameau du pays du Feu', capturedBy: null }
+                    ],
+                    'Pays des Rivières': [
+                        { id: 'riv-1', name: 'La tour de la plage', capturedBy: null },
+                        { id: 'riv-2', name: 'Le temple du feu', capturedBy: 'Konoha', protectionTimer: new Date(Date.now() + 45 * 60 * 1000) }, // 45min restantes
+                        { id: 'riv-3', name: 'La Mine', capturedBy: null },
+                        { id: 'riv-4', name: 'La Cascade', capturedBy: 'Suna', protectionTimer: new Date(Date.now() + 15 * 60 * 1000) }, // 15min restantes
+                        { id: 'riv-5', name: 'La statue qui pleure', capturedBy: null }
+                    ],
+                    
+                    // Secteur 2
+                    'Pays du Vent (Suna)': [
+                        { id: 'vent-1', name: 'Statue de Jade', capturedBy: 'Suna' },
+                        { id: 'vent-2', name: 'Tête de Dragon', capturedBy: null },
+                        { id: 'vent-3', name: 'Porte du Désert', capturedBy: 'Konoha' }
+                    ],
+                    'Pays des Roches': [
+                        { id: 'roches-1', name: 'Pont des mineurs', capturedBy: null },
+                        { id: 'roches-2', name: 'Tour noir', capturedBy: 'Kiri' },
+                        { id: 'roches-3', name: 'Le Dojo', capturedBy: null },
+                        { id: 'roches-4', name: 'Hameau des roches', capturedBy: 'Suna' },
+                        { id: 'roches-5', name: 'Cascade roche', capturedBy: null }
+                    ],
+                    
+                    // Secteur 3
+                    'Pays du Son (Oto)': [
+                        { id: 'son-1', name: 'Vallée de la Mort', capturedBy: 'Oto' },
+                        { id: 'son-2', name: 'Enclave Enneigée', capturedBy: null }
+                    ],
+                    'Pays du Fer': [
+                        { id: 'fer-1', name: 'Plaine Enneigée', capturedBy: null },
+                        { id: 'fer-2', name: 'Arche Glacée', capturedBy: 'Kiri' },
+                        { id: 'fer-3', name: 'Cratère', capturedBy: null },
+                        { id: 'fer-4', name: 'Lac du Serpent', capturedBy: 'Konoha' },
+                        { id: 'fer-5', name: 'Plaine des Samouraïs', capturedBy: null },
+                        { id: 'fer-6', name: 'Vestige du dévoreur', capturedBy: 'Suna' }
+                    ],
+                    'Pays des Sources Chaudes': [
+                        { id: 'sources-1', name: 'La Vallée des geysers', capturedBy: null },
+                        { id: 'sources-2', name: 'Montée des sources chaudes', capturedBy: 'Kiri' },
+                        { id: 'sources-3', name: 'Le Lac de la Grenouille', capturedBy: null },
+                        { id: 'sources-4', name: 'Vallée des Pics Brûlants', capturedBy: 'Oto' }
+                    ],
+                    
+                    // Secteur 4
+                    'Pays des Cerisiers': [
+                        { id: 'cerisiers-1', name: 'Passage du son', capturedBy: null },
+                        { id: 'cerisiers-2', name: 'Village des Cerisiers', capturedBy: 'Konoha' },
+                        { id: 'cerisiers-3', name: 'Vallée du panda', capturedBy: null },
+                        { id: 'cerisiers-4', name: 'Dojo du printemps', capturedBy: 'Suna' },
+                        { id: 'cerisiers-5', name: 'Point oublié', capturedBy: null }
+                    ],
+                    'Kiri': [
+                        { id: 'kiri-1', name: 'Kiri1', capturedBy: 'Kiri' },
+                        { id: 'kiri-2', name: 'Kiri2', capturedBy: null },
+                        { id: 'kiri-3', name: 'Kiri3', capturedBy: 'Kiri' }
+                    ],
+                    
+                    // Secteur 5
+                    'Pays des Oiseaux': [
+                        { id: 'oiseaux-1', name: 'La Plaine', capturedBy: null },
+                        { id: 'oiseaux-2', name: 'La Pente', capturedBy: 'Konoha' },
+                        { id: 'oiseaux-3', name: 'La Croisée des Mondes', capturedBy: null },
+                        { id: 'oiseaux-4', name: 'La Vallée', capturedBy: 'Kiri' }
+                    ],
+                    'Pays du Silence': [
+                        { id: 'silence-1', name: 'Passage sans Bruit', capturedBy: null },
+                        { id: 'silence-2', name: 'Les Corniches', capturedBy: 'Suna' },
+                        { id: 'silence-3', name: 'Le Secret du Bruit', capturedBy: null },
+                        { id: 'silence-4', name: 'Les Ossements', capturedBy: 'Oto' }
+                    ]
+                };
+                return mockPoints[countryName] || [];
+            }
+
+            handleAttackSuccess(pointId) {
+                this.performCombatAction(pointId, 'attack-success');
+                this.showSuccessMessage('✅ Attaque réussie !');
+            }
+
+            handleAttackFailed(pointId) {
+                this.performCombatAction(pointId, 'attack-failed');
+                this.showSuccessMessage('❌ Attaque ratée !');
+            }
+
+            handleDefenseSuccess(pointId) {
+                this.performCombatAction(pointId, 'defense-success');
+                this.showSuccessMessage('🛡️ Défense réussie !');
+            }
+
+            handleDefenseFailed(pointId) {
+                this.performCombatAction(pointId, 'defense-failed');
+                this.showSuccessMessage('💥 Défense ratée !');
+            }
+
+            showCaptureModal(pointId) {
+                const faction = prompt('Choisir faction (Kiri, Konoha, Suna, Oto):');
+                if (faction) {
+                    this.performCombatAction(pointId, 'capture', faction);
+                    this.showSuccessMessage(`🏴 Point capturé par ${faction} !`);
+                }
+            }
+
+            handleLiberate(pointId) {
+                this.performCombatAction(pointId, 'liberate');
+                this.showSuccessMessage('🔓 Point libéré !');
+            }
+
+            performCombatAction(pointId, actionType, faction = null) {
+                // Trouver le point dans toutes les données
+                const allPoints = this.getAllPoints();
+                const point = allPoints.find(p => p.id === pointId);
+                
+                if (!point) return;
+
+                // Appliquer l'action
+                switch (actionType) {
+                    case 'attack-success':
+                        point.capturedBy = 'Kiri';
+                        break;
+                    case 'defense-success':
+                        // Le défenseur garde le point
+                        break;
+                    case 'attack-failed':
+                    case 'defense-failed':
+                        // Pas de changement de propriétaire
+                        break;
+                    case 'capture':
+                        point.capturedBy = faction;
+                        break;
+                    case 'liberate':
+                        point.capturedBy = null;
+                        point.protectionTimer = null;
+                        break;
+                }
+
+                // Ajouter 2h de protection après chaque action (sauf libération)
+                if (actionType !== 'liberate') {
+                    point.protectionTimer = new Date(Date.now() + 2 * 60 * 60 * 1000);
+                }
+
+                // Rafraîchir l'affichage
+                this.refreshDisplay();
+            }
+
+            getAllPoints() {
+                const allPoints = [];
+                for (const countryName in this.pointsData) {
+                    allPoints.push(...this.pointsData[countryName]);
+                }
+                return allPoints;
+            }
+
+            refreshDisplay() {
+                // Rafraîchir les statistiques
+                this.updateStats();
+                
+                // Rafraîchir la conquête de Kiri si l'onglet est actif
+                if (this.currentTab === 'kiri-conquest') {
+                    this.updateKiriConquest();
+                }
+                
+                // Rafraîchir l'affichage des points si on est dans l'onglet liste des points
+                if (this.currentTab === 'sectors' && this.currentCountry) {
+                    this.showPointsForCountry(this.currentCountry);
+                }
+            }
+
+            showSuccessMessage(message) {
+                const successDiv = document.createElement('div');
+                successDiv.className = 'success-message';
+                successDiv.textContent = message;
+                document.body.appendChild(successDiv);
+                
+                setTimeout(() => {
+                    document.body.removeChild(successDiv);
+                }, 3000);
+            }
+
+            // Fonctions pour l'onglet Carte
+            showMapSector(sectorId) {
+                const countries = this.getCountriesForSector(sectorId);
+                const mapCountries = document.getElementById('map-countries');
+                
+                mapCountries.innerHTML = '';
+                countries.forEach(country => {
+                    const countryDiv = document.createElement('div');
+                    countryDiv.className = 'col-md-6 mb-3';
+                    countryDiv.innerHTML = `
+                        <div class="point-card">
+                            <h5>${country.name}</h5>
+                            <p>${country.points} points</p>
+                            <button class="btn btn-primary" onclick="app.showMapForCountry('${country.name}')">
+                                Voir la carte
+                            </button>
+                        </div>
+                    `;
+                    mapCountries.appendChild(countryDiv);
+                });
+            }
+
+            getCountriesForSector(sectorId) {
+                const sectors = {
+                    'S1': [
+                        { name: 'Pays du Feu (Konoha)', points: 3 },
+                        { name: 'Pays des Rivières', points: 5 }
+                    ],
+                    'S2': [
+                        { name: 'Pays du Vent (Suna)', points: 3 },
+                        { name: 'Pays des Roches', points: 5 }
+                    ],
+                    'S3': [
+                        { name: 'Pays du Son (Oto)', points: 2 },
+                        { name: 'Pays du Fer', points: 6 },
+                        { name: 'Pays des Sources Chaudes', points: 4 }
+                    ],
+                    'S4': [
+                        { name: 'Pays des Cerisiers', points: 5 },
+                        { name: 'Kiri', points: 3 }
+                    ],
+                    'S5': [
+                        { name: 'Pays des Oiseaux', points: 4 },
+                        { name: 'Pays du Silence', points: 4 }
+                    ]
+                };
+                return sectors[sectorId] || [];
+            }
+
+            showMapForCountry(countryName) {
+                const mapDisplay = document.getElementById('map-display');
+                const mapTitle = document.getElementById('map-country-title');
+                const mapImage = document.getElementById('country-map-image');
+                
+                mapTitle.textContent = `Carte de ${countryName}`;
+                
+                // Mapping des noms de pays vers les fichiers d'images
+                const imageMap = {
+                    'Pays du Feu (Konoha)': 'pays_du_feu.png',
+                    'Pays des Rivières': 'pays_des_rivieres.png',
+                    'Pays du Vent (Suna)': 'pays_du_vent.jpg',
+                    'Pays des Roches': 'pays_des_roches.png',
+                    'Pays du Son (Oto)': 'pays_du_fer.png', // Pas d'image spécifique, on utilise celle du fer
+                    'Pays du Fer': 'pays_du_fer.png',
+                    'Pays des Sources Chaudes': 'pays_des_sources_chaudes.png',
+                    'Pays des Cerisiers': 'pays_des_cerisiers.png',
+                    'Kiri': 'pays_du_feu.png', // Pas d'image spécifique pour Kiri
+                    'Pays des Oiseaux': 'pays_des_oiseaux.png',
+                    'Pays du Silence': 'pays_du_silence.png'
+                };
+                
+                const imageFile = imageMap[countryName];
+                if (imageFile) {
+                    mapImage.src = `/map/${imageFile}`;
+                    mapImage.alt = `Carte de ${countryName}`;
+                    mapDisplay.classList.remove('d-none');
+                } else {
+                    alert(`Image non disponible pour ${countryName}`);
+                }
+            }
+
+            // Fonctions pour la conquête de Kiri
+            showKiriTab(tabType) {
+                // Masquer tous les sous-onglets
+                document.querySelectorAll('.kiri-tab-content').forEach(tab => {
+                    tab.classList.add('d-none');
+                });
+                
+                // Afficher l'onglet sélectionné
+                document.getElementById(`kiri-${tabType}`).classList.remove('d-none');
+                
+                // Mettre à jour le contenu
+                this.updateKiriConquest();
+            }
+
+            updateKiriConquest() {
+                this.updateAttackablePoints();
+                this.updateSoonAttackablePoints();
+                this.updateOwnedPoints();
+            }
+
+            updateAttackablePoints() {
+                const allPoints = this.getAllPoints();
+                const attackablePoints = allPoints.filter(point => {
+                    // Points libres ou dont le timer a expiré
+                    return !point.capturedBy || 
+                           (point.protectionTimer && new Date() > new Date(point.protectionTimer));
+                });
+
+                const container = document.getElementById('attackable-points-list');
+                container.innerHTML = '';
+                
+                attackablePoints.forEach(point => {
+                    const pointDiv = document.createElement('div');
+                    pointDiv.className = 'modern-card';
+                    pointDiv.innerHTML = `
+                        <h5>${point.name}</h5>
+                        <p>Statut: ${point.capturedBy || 'Libre'}</p>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-danger btn-modern" onclick="app.showSquadModal('attack-success', '${point.id}')">
+                                <i class="fas fa-crosshairs"></i> Attaque Réussie
+                            </button>
+                            <button class="btn btn-sm btn-warning btn-modern" onclick="app.showSquadModal('attack-failed', '${point.id}')">
+                                <i class="fas fa-times"></i> Attaque Ratée
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(pointDiv);
+                });
+            }
+
+            updateSoonAttackablePoints() {
+                const allPoints = this.getAllPoints();
+                const soonAttackablePoints = allPoints.filter(point => {
+                    if (!point.protectionTimer) return false;
+                    
+                    const timerEnd = new Date(point.protectionTimer);
+                    const now = new Date();
+                    const timeLeft = timerEnd - now;
+                    
+                    // Timer expire dans les 20 prochaines minutes
+                    return timeLeft > 0 && timeLeft <= 20 * 60 * 1000;
+                });
+
+                const container = document.getElementById('soon-attackable-points-list');
+                container.innerHTML = '';
+                
+                soonAttackablePoints.forEach(point => {
+                    const timerEnd = new Date(point.protectionTimer);
+                    const now = new Date();
+                    const timeLeft = Math.max(0, timerEnd - now);
+                    const minutesLeft = Math.ceil(timeLeft / (60 * 1000));
+                    
+                    const pointDiv = document.createElement('div');
+                    pointDiv.className = 'modern-card';
+                    pointDiv.innerHTML = `
+                        <h5>${point.name}</h5>
+                        <p>Contrôlé par: ${point.capturedBy}</p>
+                        <p><span class="timer-badge">⏰ ${minutesLeft} min restantes</span></p>
+                    `;
+                    container.appendChild(pointDiv);
+                });
+            }
+
+            updateOwnedPoints() {
+                const allPoints = this.getAllPoints();
+                const ownedPoints = allPoints.filter(point => point.capturedBy === 'Kiri');
+
+                const container = document.getElementById('owned-points-list');
+                container.innerHTML = '';
+                
+                ownedPoints.forEach(point => {
+                    const pointDiv = document.createElement('div');
+                    pointDiv.className = 'modern-card';
+                    pointDiv.innerHTML = `
+                        <h5>${point.name}</h5>
+                        <p>🏴 Contrôlé par Kiri</p>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-success btn-modern" onclick="app.showSquadModal('defense-success', '${point.id}')">
+                                <i class="fas fa-shield-alt"></i> Défense Réussie
+                            </button>
+                            <button class="btn btn-sm btn-warning btn-modern" onclick="app.showSquadModal('defense-failed', '${point.id}')">
+                                <i class="fas fa-times"></i> Défense Ratée
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(pointDiv);
+                });
+            }
+
+            // Fonctions pour les statistiques
+            updateStats() {
+                this.updateFactionPoints();
+                this.updateKiriPlayersTable();
+                this.updateFactionStatsTable();
+            }
+
+            updateFactionPoints() {
+                const allPoints = this.getAllPoints();
+                const factionCounts = { Kiri: 0, Konoha: 0, Suna: 0, Oto: 0 };
+                
+                allPoints.forEach(point => {
+                    if (point.capturedBy && factionCounts.hasOwnProperty(point.capturedBy)) {
+                        factionCounts[point.capturedBy]++;
+                    }
+                });
+
+                document.getElementById('kiri-points').textContent = factionCounts.Kiri;
+                document.getElementById('konoha-points').textContent = factionCounts.Konoha;
+                document.getElementById('suna-points').textContent = factionCounts.Suna;
+                document.getElementById('oto-points').textContent = factionCounts.Oto;
+            }
+
+            updateKiriPlayersTable() {
+                const tbody = document.getElementById('kiri-players-table');
+                tbody.innerHTML = '';
+                
+                // Convertir la Map en Array et trier par net (décroissant)
+                const playersArray = Array.from(this.kiriPlayers.values())
+                    .sort((a, b) => b.net - a.net);
+                
+                if (playersArray.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="8" class="text-center text-muted">
+                            <i class="fas fa-trophy"></i> Aucun joueur dans le ladder - Commencez les combats !
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                    return;
+                }
+                
+                playersArray.forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${player.name}</td>
+                        <td>${player.winrate}%</td>
+                        <td>${player.attacks}</td>
+                        <td>${player.defenses}</td>
+                        <td>${player.pointsWon}</td>
+                        <td>${player.pointsLost}</td>
+                        <td>${player.net >= 0 ? '+' : ''}${player.net}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            updateFactionStatsTable() {
+                const tbody = document.getElementById('faction-stats-table');
+                tbody.innerHTML = '';
+                
+                // Toutes les stats à zéro - on repart à zéro
+                const factions = [
+                    { name: 'Kiri', points: 0, attacks: 0, defenses: 0, winrate: 0 },
+                    { name: 'Konoha', points: 0, attacks: 0, defenses: 0, winrate: 0 },
+                    { name: 'Suna', points: 0, attacks: 0, defenses: 0, winrate: 0 },
+                    { name: 'Oto', points: 0, attacks: 0, defenses: 0, winrate: 0 }
+                ];
+
+                // Calculer les points réels (qui seront tous à 0 maintenant)
+                const allPoints = this.getAllPoints();
+                factions.forEach(faction => {
+                    faction.points = allPoints.filter(p => p.capturedBy === faction.name).length;
+                });
+
+                factions.forEach(faction => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${faction.name}</td>
+                        <td>${faction.points}</td>
+                        <td>${faction.attacks}</td>
+                        <td>${faction.defenses}</td>
+                        <td>${faction.winrate}%</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = new CaptureNinjaApp();
+        });
+    </script>
+</body>
+</html>
