@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { CapturePoint } = require('../models');
 
 // Connexion MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://capture-admin:CaptureDrapeau2024!@aka.o0x0dlu.mongodb.net/capture-drapeau?retryWrites=true&w=majority&appName=Aka';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://capture-admin:CaptureDrapeau2024!@aka.o0x0dlu.mongodb.net/capture-drapeau?retryWrites=true&w=majority';
 
 // S'assurer que le nom de la base de données est inclus
 const ensureDatabaseName = (uri) => {
@@ -16,11 +16,19 @@ const finalMongoURI = ensureDatabaseName(MONGODB_URI);
 
 module.exports = async (req, res) => {
     try {
-        // Connexion MongoDB
-        await mongoose.connect(finalMongoURI);
+        // Connexion MongoDB avec options optimisées
+        await mongoose.connect(finalMongoURI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+        });
         
         // Récupérer tous les points
         const points = await CapturePoint.find();
+        
+        // Fermer la connexion
+        await mongoose.connection.close();
         
         res.json(points);
         
