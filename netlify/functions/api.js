@@ -101,6 +101,22 @@ exports.handler = async (event, context) => {
             // Supprimer tous les points existants
             await supabase.from('capture_points').delete().neq('id', '');
             
+            // Supprimer tous les joueurs existants
+            await supabase.from('kiri_players').delete().neq('id', 0);
+            
+            // Supprimer tout l'historique des combats
+            await supabase.from('combat_history').delete().neq('id', 0);
+            
+            // Réinitialiser les stats des factions
+            await supabase.from('faction_stats').update({
+                total_points: 0,
+                total_attacks: 0,
+                total_defenses: 0,
+                successful_attacks: 0,
+                successful_defenses: 0,
+                winrate: 0.00
+            }).neq('id', 0);
+            
             // Insérer les nouveaux points
             const { error } = await supabase.from('capture_points').insert(defaultPoints);
             
@@ -116,7 +132,7 @@ exports.handler = async (event, context) => {
                 },
                 body: JSON.stringify({ 
                     success: true, 
-                    message: '✅ Base de données initialisée avec succès sur Supabase !',
+                    message: '✅ Base de données complètement initialisée avec succès !',
                     pointsCreated: defaultPoints.length 
                 })
             };
@@ -169,6 +185,117 @@ exports.handler = async (event, context) => {
                     },
                     body: JSON.stringify({ error: 'Point non trouvé' })
                 };
+            }
+            
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data[0])
+            };
+        }
+
+        // Route /api/players - Récupérer tous les joueurs Kiri
+        if (path === '/api/players' && method === 'GET') {
+            const { data, error } = await supabase
+                .from('kiri_players')
+                .select('*')
+                .order('net', { ascending: false });
+                
+            if (error) {
+                throw error;
+            }
+            
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+        }
+
+        // Route /api/players - Sauvegarder un joueur Kiri
+        if (path === '/api/players' && method === 'POST') {
+            const playerData = JSON.parse(event.body || '{}');
+            
+            const { data, error } = await supabase
+                .from('kiri_players')
+                .upsert(playerData, { onConflict: 'name' })
+                .select();
+                
+            if (error) {
+                throw error;
+            }
+            
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data[0])
+            };
+        }
+
+        // Route /api/combat-history - Sauvegarder un combat
+        if (path === '/api/combat-history' && method === 'POST') {
+            const combatData = JSON.parse(event.body || '{}');
+            
+            const { data, error } = await supabase
+                .from('combat_history')
+                .insert(combatData)
+                .select();
+                
+            if (error) {
+                throw error;
+            }
+            
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data[0])
+            };
+        }
+
+        // Route /api/faction-stats - Récupérer les stats des factions
+        if (path === '/api/faction-stats' && method === 'GET') {
+            const { data, error } = await supabase
+                .from('faction_stats')
+                .select('*');
+                
+            if (error) {
+                throw error;
+            }
+            
+            return {
+                statusCode: 200,
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            };
+        }
+
+        // Route /api/faction-stats - Mettre à jour les stats d'une faction
+        if (path === '/api/faction-stats' && method === 'PUT') {
+            const { factionName, ...statsData } = JSON.parse(event.body || '{}');
+            
+            const { data, error } = await supabase
+                .from('faction_stats')
+                .update(statsData)
+                .eq('faction_name', factionName)
+                .select();
+                
+            if (error) {
+                throw error;
             }
             
             return {

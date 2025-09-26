@@ -685,11 +685,12 @@
                 
                 // Données des joueurs Kiri avec stats détaillées
                 this.kiriPlayers = new Map();
-                this.initializeKiriPlayers();
                 
-            // Données persistantes des points (chargées depuis MongoDB)
-            this.pointsData = {};
-            this.loadPointsFromDatabase();
+                // Données persistantes (chargées depuis Supabase)
+                this.pointsData = {};
+                this.factionStats = {};
+                
+                this.loadAllDataFromDatabase();
                 
                 this.init();
                 
@@ -717,11 +718,12 @@
                 this.kiriPlayers.clear();
             }
 
-            // Charger les points depuis Supabase
-            async loadPointsFromDatabase() {
+            // Charger TOUTES les données depuis Supabase
+            async loadAllDataFromDatabase() {
                 try {
-                    const response = await fetch('/api/points');
-                    const points = await response.json();
+                    // Charger les points
+                    const pointsResponse = await fetch('/api/points');
+                    const points = await pointsResponse.json();
                     
                     // Organiser les points par pays
                     this.pointsData = {};
@@ -732,25 +734,61 @@
                         this.pointsData[point.country].push(point);
                     });
                     
-                    console.log('✅ Points chargés depuis Supabase:', points.length);
+                    // Charger les joueurs Kiri
+                    const playersResponse = await fetch('/api/players');
+                    const players = await playersResponse.json();
+                    
+                    this.kiriPlayers.clear();
+                    players.forEach(player => {
+                        this.kiriPlayers.set(player.name.toLowerCase(), {
+                            name: player.name,
+                            winrate: player.winrate,
+                            attacks: player.attacks,
+                            defenses: player.defenses,
+                            pointsWon: player.points_won,
+                            pointsLost: player.points_lost,
+                            net: player.net
+                        });
+                    });
+                    
+                    // Charger les stats des factions
+                    const factionStatsResponse = await fetch('/api/faction-stats');
+                    const factionStats = await factionStatsResponse.json();
+                    
+                    this.factionStats = {};
+                    factionStats.forEach(stat => {
+                        this.factionStats[stat.faction_name] = stat;
+                    });
+                    
+                    console.log('✅ Toutes les données chargées depuis Supabase:', {
+                        points: points.length,
+                        players: players.length,
+                        factions: factionStats.length
+                    });
                 } catch (error) {
-                    console.error('❌ Erreur lors du chargement des points:', error);
+                    console.error('❌ Erreur lors du chargement des données:', error);
                     // Fallback vers les données par défaut
                     this.pointsData = this.initializePointsData();
+                    this.initializeKiriPlayers();
                 }
             }
 
-            // Sauvegarder un point dans Supabase
-            async savePointToDatabase(point) {
+            // Sauvegarder un joueur Kiri dans Supabase
+            async savePlayerToDatabase(player) {
                 try {
-                    const response = await fetch(`/api/points/${point.id}`, {
-                        method: 'PUT',
+                    const response = await fetch('/api/players', {
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            capturedBy: point.capturedBy,
-                            protectionTimer: point.protectionTimer ? point.protectionTimer.toISOString() : null
+                            name: player.name,
+                            winrate: player.winrate,
+                            attacks: player.attacks,
+                            defenses: player.defenses,
+                            points_won: player.pointsWon,
+                            points_lost: player.pointsLost,
+                            net: player.net
                         })
                     });
                     
@@ -758,9 +796,54 @@
                         throw new Error(`Erreur HTTP: ${response.status}`);
                     }
                     
-                    console.log('✅ Point sauvegardé:', point.id);
+                    console.log('✅ Joueur sauvegardé:', player.name);
                 } catch (error) {
-                    console.error('❌ Erreur lors de la sauvegarde:', error);
+                    console.error('❌ Erreur lors de la sauvegarde du joueur:', error);
+                }
+            }
+
+            // Sauvegarder l'historique d'un combat dans Supabase
+            async saveCombatToDatabase(combatData) {
+                try {
+                    const response = await fetch('/api/combat-history', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(combatData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    
+                    console.log('✅ Combat sauvegardé:', combatData.point_name);
+                } catch (error) {
+                    console.error('❌ Erreur lors de la sauvegarde du combat:', error);
+                }
+            }
+
+            // Sauvegarder les stats d'une faction dans Supabase
+            async saveFactionStatsToDatabase(factionName, stats) {
+                try {
+                    const response = await fetch('/api/faction-stats', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            factionName: factionName,
+                            ...stats
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    
+                    console.log('✅ Stats faction sauvegardées:', factionName);
+                } catch (error) {
+                    console.error('❌ Erreur lors de la sauvegarde des stats faction:', error);
                 }
             }
 
@@ -1143,7 +1226,7 @@
                 this.pendingPointId = null;
             }
 
-            executeCombatAction(actionType, pointId, squadMembers) {
+            async executeCombatAction(actionType, pointId, squadMembers) {
                 // Trouver le point dans les données originales
                 const point = this.findPointById(pointId);
                 
@@ -1153,9 +1236,10 @@
                 this.updatePlayerStats(squadMembers, actionType, point);
 
                 // Appliquer l'action
+                let newFaction = null;
                 switch (actionType) {
                     case 'attack-success':
-                        const newFaction = document.getElementById('new-faction').value;
+                        newFaction = document.getElementById('new-faction').value;
                         point.capturedBy = newFaction;
                         this.showSuccessMessage(`✅ Attaque réussie ! Point capturé par ${newFaction} !`);
                         break;
@@ -1166,14 +1250,36 @@
                         this.showSuccessMessage('🛡️ Défense réussie ! Le point reste aux défenseurs.');
                         break;
                     case 'defense-failed':
-                        const newFactionDef = document.getElementById('new-faction').value;
-                        point.capturedBy = newFactionDef;
-                        this.showSuccessMessage(`💥 Défense ratée ! Point capturé par ${newFactionDef} !`);
+                        newFaction = document.getElementById('new-faction').value;
+                        point.capturedBy = newFaction;
+                        this.showSuccessMessage(`💥 Défense ratée ! Point capturé par ${newFaction} !`);
                         break;
                 }
 
                 // Ajouter 2h de protection après chaque action (120 minutes)
                 point.protectionTimer = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+                // Sauvegarder TOUT dans Supabase
+                await this.savePointToDatabase(point);
+                
+                // Sauvegarder chaque joueur mis à jour
+                for (const memberName of squadMembers) {
+                    const normalizedName = memberName.toLowerCase();
+                    const player = this.kiriPlayers.get(normalizedName);
+                    if (player) {
+                        await this.savePlayerToDatabase(player);
+                    }
+                }
+                
+                // Sauvegarder l'historique du combat
+                await this.saveCombatToDatabase({
+                    point_id: point.id,
+                    point_name: point.name,
+                    action_type: actionType,
+                    faction: newFaction || point.capturedBy,
+                    squad_members: squadMembers,
+                    success: actionType.includes('success')
+                });
 
                 // Rafraîchir l'affichage
                 this.refreshDisplay();
