@@ -1,4 +1,4 @@
-const { neon } = require('@netlify/neon');
+const { neon } = require('@neondatabase/serverless');
 
 // Configuration Neon (automatique via NETLIFY_DATABASE_URL)
 const sql = neon(); // Utilise automatiquement NETLIFY_DATABASE_URL
