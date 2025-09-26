@@ -2,10 +2,10 @@
   "name": "capture-ninja",
   "version": "1.0.0",
   "description": "Système de capture de points",
-  "main": "server.js",
+  "main": "server-mongodb.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server-mongodb.js",
+    "dev": "node server-mongodb.js"
   },
   "dependencies": {
     "express": "^4.18.2",
