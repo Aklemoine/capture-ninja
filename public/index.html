@@ -1538,14 +1538,49 @@
                     return;
                 }
                 
-                await this.performCombatAction(this.currentCapturePointId, 'capture', faction, duration);
-                this.showSuccessMessage(`🏴 Point capturé par ${faction} ! (Protection: ${duration} minutes)`);
-                this.closeCaptureModal();
+                // Afficher l'indicateur de chargement
+                const captureBtn = document.querySelector('#capture-modal .btn-primary');
+                const originalText = captureBtn.innerHTML;
+                captureBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Capture en cours...';
+                captureBtn.disabled = true;
+                
+                try {
+                    await this.performCombatAction(this.currentCapturePointId, 'capture', faction, duration);
+                    this.showSuccessMessage(`🏴 Point capturé par ${faction} ! (Protection: ${duration} minutes)`);
+                    this.closeCaptureModal();
+                } catch (error) {
+                    console.error('Erreur lors de la capture:', error);
+                    alert('❌ Erreur lors de la capture du point');
+                } finally {
+                    // Restaurer le bouton
+                    captureBtn.innerHTML = originalText;
+                    captureBtn.disabled = false;
+                }
             }
 
             async handleLiberate(pointId) {
-                await this.performCombatAction(pointId, 'liberate');
-                this.showSuccessMessage('🔓 Point libéré !');
+                // Trouver le bouton de libération et afficher le chargement
+                const liberateBtn = document.querySelector(`button[onclick="app.handleLiberate('${pointId}')"]`);
+                if (liberateBtn) {
+                    const originalText = liberateBtn.innerHTML;
+                    liberateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Libération...';
+                    liberateBtn.disabled = true;
+                    
+                    try {
+                        await this.performCombatAction(pointId, 'liberate');
+                        this.showSuccessMessage('🔓 Point libéré !');
+                    } catch (error) {
+                        console.error('Erreur lors de la libération:', error);
+                        alert('❌ Erreur lors de la libération du point');
+                    } finally {
+                        liberateBtn.innerHTML = originalText;
+                        liberateBtn.disabled = false;
+                    }
+                } else {
+                    // Fallback si le bouton n'est pas trouvé
+                    await this.performCombatAction(pointId, 'liberate');
+                    this.showSuccessMessage('🔓 Point libéré !');
+                }
             }
 
             async performCombatAction(pointId, actionType, faction = null, customDuration = null) {
@@ -1583,11 +1618,14 @@
                     point.protectionTimer = new Date(Date.now() + durationMinutes * 60 * 1000);
                 }
 
-                // Sauvegarder dans MongoDB
-                await this.savePointToDatabase(point);
-
-                // Rafraîchir l'affichage
+                // Rafraîchir l'affichage immédiatement (UI réactive)
                 this.refreshDisplay();
+
+                // Sauvegarder dans la base de données en arrière-plan (non bloquant)
+                this.savePointToDatabase(point).catch(error => {
+                    console.error('Erreur lors de la sauvegarde:', error);
+                    // Optionnel : afficher une notification d'erreur discrète
+                });
             }
 
             getAllPoints() {
