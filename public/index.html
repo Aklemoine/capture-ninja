@@ -687,10 +687,14 @@
                 this.kiriPlayers = new Map();
                 this.initializeKiriPlayers();
                 
-                // Données persistantes des points
-                this.pointsData = this.initializePointsData();
+            // Données persistantes des points (chargées depuis MongoDB)
+            this.pointsData = {};
+            this.loadPointsFromDatabase();
                 
                 this.init();
+                
+                // Démarrer le rafraîchissement automatique pour les observateurs
+                this.startAutoRefresh();
             }
 
             initializeUsers() {
@@ -711,6 +715,58 @@
             initializeKiriPlayers() {
                 // Ladder complètement vide - on repart à zéro
                 this.kiriPlayers.clear();
+            }
+
+            // Charger les points depuis MongoDB
+            async loadPointsFromDatabase() {
+                try {
+                    const response = await fetch('/api/points');
+                    const points = await response.json();
+                    
+                    // Organiser les points par pays
+                    this.pointsData = {};
+                    points.forEach(point => {
+                        if (!this.pointsData[point.country]) {
+                            this.pointsData[point.country] = [];
+                        }
+                        this.pointsData[point.country].push(point);
+                    });
+                    
+                    console.log('✅ Points chargés depuis MongoDB:', points.length);
+                } catch (error) {
+                    console.error('❌ Erreur lors du chargement des points:', error);
+                    // Fallback vers les données par défaut
+                    this.pointsData = this.initializePointsData();
+                }
+            }
+
+            // Sauvegarder un point dans MongoDB
+            async savePointToDatabase(point) {
+                try {
+                    await fetch(`/api/points/${point.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            capturedBy: point.capturedBy,
+                            protectionTimer: point.protectionTimer
+                        })
+                    });
+                } catch (error) {
+                    console.error('❌ Erreur lors de la sauvegarde:', error);
+                }
+            }
+
+            // Rafraîchissement automatique pour les observateurs
+            startAutoRefresh() {
+                // Rafraîchir toutes les 30 secondes
+                setInterval(async () => {
+                    if (this.currentUser === 'Visiteur' || this.currentRole === 'observateur') {
+                        await this.loadPointsFromDatabase();
+                        this.refreshDisplay();
+                    }
+                }, 30000); // 30 secondes
             }
 
             initializePointsData() {
@@ -1414,6 +1470,9 @@
                     const durationMinutes = customDuration || 120;
                     point.protectionTimer = new Date(Date.now() + durationMinutes * 60 * 1000);
                 }
+
+                // Sauvegarder dans MongoDB
+                this.savePointToDatabase(point);
 
                 // Rafraîchir l'affichage
                 this.refreshDisplay();
