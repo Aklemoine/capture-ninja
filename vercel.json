@@ -1,19 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server-mongodb.js",
-      "use": "@vercel/node"
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server-mongodb.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "server-mongodb.js"
-    }
-  ]
+  }
 }
