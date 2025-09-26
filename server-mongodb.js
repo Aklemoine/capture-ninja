@@ -16,7 +16,17 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')));
 // Connexion MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://capture-admin:CaptureDrapeau2024!@aka.o0x0dlu.mongodb.net/capture-drapeau?retryWrites=true&w=majority&appName=Aka';
 
-mongoose.connect(MONGODB_URI)
+// S'assurer que le nom de la base de données est inclus
+const ensureDatabaseName = (uri) => {
+    if (!uri.includes('/capture-drapeau')) {
+        return uri.replace('?', '/capture-drapeau?');
+    }
+    return uri;
+};
+
+const finalMongoURI = ensureDatabaseName(MONGODB_URI);
+
+mongoose.connect(finalMongoURI)
     .then(() => console.log('✅ Connecté à MongoDB Atlas'))
     .catch(err => console.error('❌ Erreur de connexion MongoDB:', err));
 
