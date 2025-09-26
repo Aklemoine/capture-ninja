@@ -1818,11 +1818,26 @@
                 container.innerHTML = '';
                 
                 attackablePoints.forEach(point => {
+                    // Calculer le timer de protection
+                    let timerHtml = '';
+                    if (point.protectionTimer) {
+                        const timerEnd = new Date(point.protectionTimer);
+                        const now = new Date();
+                        const timeLeft = Math.max(0, timerEnd - now);
+                        const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+                        const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+                        
+                        if (timeLeft > 0) {
+                            timerHtml = `<p><span class="timer-badge">⏰ Protection: ${hoursLeft}h ${minutesLeft}min</span></p>`;
+                        }
+                    }
+
                     const pointDiv = document.createElement('div');
                     pointDiv.className = 'modern-card';
                     pointDiv.innerHTML = `
                         <h5>${point.name}</h5>
                         <p>Statut: ${point.capturedBy || 'Libre'}</p>
+                        ${timerHtml}
                         ${this.hasPermission('write') ? `
                         <div class="btn-group">
                             <button class="btn btn-sm btn-danger btn-modern" onclick="app.showSquadModal('attack-success', '${point.id}')">
@@ -1885,11 +1900,26 @@
                 container.innerHTML = '';
                 
                 ownedPoints.forEach(point => {
+                    // Calculer le timer de protection
+                    let timerHtml = '';
+                    if (point.protectionTimer) {
+                        const timerEnd = new Date(point.protectionTimer);
+                        const now = new Date();
+                        const timeLeft = Math.max(0, timerEnd - now);
+                        const hoursLeft = Math.floor(timeLeft / (60 * 60 * 1000));
+                        const minutesLeft = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+                        
+                        if (timeLeft > 0) {
+                            timerHtml = `<p><span class="timer-badge">⏰ Protection: ${hoursLeft}h ${minutesLeft}min</span></p>`;
+                        }
+                    }
+
                     const pointDiv = document.createElement('div');
                     pointDiv.className = 'modern-card';
                     pointDiv.innerHTML = `
                         <h5>${point.name}</h5>
                         <p>🏴 Contrôlé par Kiri</p>
+                        ${timerHtml}
                         ${this.hasPermission('write') ? `
                         <div class="btn-group">
                             <button class="btn btn-sm btn-success btn-modern" onclick="app.showSquadModal('defense-success', '${point.id}')">
