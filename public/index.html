@@ -352,6 +352,7 @@
                 <button class="nav-btn btn" data-tab="sectors">📋 Liste des Points</button>
                 <button class="nav-btn btn" data-tab="kiri-conquest">⚔️ Conquête de Kiri</button>
                 <button class="nav-btn btn" data-tab="stats">📊 Classement</button>
+                <button class="nav-btn btn" data-tab="members" id="members-tab" style="display: none;">👥 Gestion Membres</button>
             </div>
             <div class="navbar-nav d-flex flex-row">
                 <span id="user-info" class="text-light me-3 d-none">
@@ -462,6 +463,33 @@
                     <h3>🏴 Possédés par Kiri</h3>
                     <p>Points actuellement contrôlés par Kiri</p>
                     <div id="owned-points-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Onglet Gestion Membres -->
+        <div id="members-tab" class="tab-content d-none">
+            <h2>👥 Gestion des Membres</h2>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="modern-card">
+                        <h4>📋 Liste des Membres</h4>
+                        <div id="members-list"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="modern-card">
+                        <h4>ℹ️ Hiérarchie</h4>
+                        <div class="hierarchy-info">
+                            <p><strong>👑 Général</strong> - Niveau 1</p>
+                            <p><strong>🛡️ Capitaine</strong> - Niveau 2</p>
+                            <p><strong>🏛️ Pilier</strong> - Niveau 3</p>
+                            <p><strong>⚔️ Bras Droit</strong> - Niveau 4</p>
+                            <p><strong>👤 Membre</strong> - Niveau 5</p>
+                            <p><strong>👁️ Observateur</strong> - Niveau 6</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -699,17 +727,82 @@
             }
 
             initializeUsers() {
-                // Utilisateurs avec rôles et permissions
+                // Utilisateurs avec rôles et permissions hiérarchiques
                 return {
-                    // Hauts gradés - Accès complet
-                    'general': { username: 'General', password: 'general', role: 'general', permissions: ['read', 'write', 'admin'] },
-                    'captain': { username: 'Captain', password: 'captain', role: 'captain', permissions: ['read', 'write', 'admin'] },
-                    'bras': { username: 'Bras', password: 'bras', role: 'bras_droit', permissions: ['read', 'write', 'admin'] },
-                    'pilier': { username: 'Pilier', password: 'pilier', role: 'pilier', permissions: ['read', 'write', 'admin'] },
+                    // Général - Accès complet + gestion des membres
+                    'general': { 
+                        username: 'Général', 
+                        password: 'general', 
+                        role: 'general', 
+                        permissions: ['read', 'write', 'admin', 'manage_members'],
+                        level: 1
+                    },
+                    
+                    // Capitaine - Accès complet + gestion des membres
+                    'captain': { 
+                        username: 'Capitaine', 
+                        password: 'captain', 
+                        role: 'captain', 
+                        permissions: ['read', 'write', 'admin', 'manage_members'],
+                        level: 2
+                    },
+                    
+                    // Pilier - Accès complet
+                    'pilier': { 
+                        username: 'Pilier', 
+                        password: 'pilier', 
+                        role: 'pilier', 
+                        permissions: ['read', 'write', 'admin'],
+                        level: 3
+                    },
+                    
+                    // Bras Droit - Accès complet
+                    'bras': { 
+                        username: 'Bras Droit', 
+                        password: 'bras', 
+                        role: 'bras_droit', 
+                        permissions: ['read', 'write', 'admin'],
+                        level: 4
+                    },
+                    
+                    // Membre - Accès limité
+                    'membre1': { 
+                        username: 'Membre 1', 
+                        password: 'membre1', 
+                        role: 'membre', 
+                        permissions: ['read', 'write'],
+                        level: 5
+                    },
+                    'membre2': { 
+                        username: 'Membre 2', 
+                        password: 'membre2', 
+                        role: 'membre', 
+                        permissions: ['read', 'write'],
+                        level: 5
+                    },
+                    'membre3': { 
+                        username: 'Membre 3', 
+                        password: 'membre3', 
+                        role: 'membre', 
+                        permissions: ['read', 'write'],
+                        level: 5
+                    },
                     
                     // Observateurs - Lecture seule
-                    'obs1': { username: 'Obs1', password: 'obs1', role: 'observateur', permissions: ['read'] },
-                    'obs2': { username: 'Obs2', password: 'obs2', role: 'observateur', permissions: ['read'] }
+                    'obs1': { 
+                        username: 'Observateur 1', 
+                        password: 'obs1', 
+                        role: 'observateur', 
+                        permissions: ['read'],
+                        level: 6
+                    },
+                    'obs2': { 
+                        username: 'Observateur 2', 
+                        password: 'obs2', 
+                        role: 'observateur', 
+                        permissions: ['read'],
+                        level: 6
+                    }
                 };
             }
 
@@ -1059,20 +1152,29 @@
                 const currentUserSpan = document.getElementById('current-user');
                 const userRoleSpan = document.getElementById('user-role');
                 const logoutBtn = document.getElementById('logout-btn');
+                const membersTab = document.getElementById('members-tab');
                 
                 currentUserSpan.textContent = this.currentUser;
                 userRoleSpan.textContent = this.getRoleDisplayName(this.currentRole);
                 
                 userInfo.classList.remove('d-none');
                 logoutBtn.style.display = 'block';
+                
+                // Afficher l'onglet "Gestion Membres" seulement pour Général et Capitaine
+                if (this.canManageMembers()) {
+                    membersTab.style.display = 'block';
+                } else {
+                    membersTab.style.display = 'none';
+                }
             }
 
             getRoleDisplayName(role) {
                 const roleNames = {
-                    'general': '👑 Général de la Brume',
-                    'capitaine': '🛡️ Capitaine de la Brume',
+                    'general': '👑 Général',
+                    'captain': '🛡️ Capitaine',
                     'bras_droit': '⚔️ Bras Droit',
                     'pilier': '🏛️ Pilier',
+                    'membre': '👤 Membre',
                     'observateur': '👁️ Observateur'
                 };
                 return roleNames[role] || role;
@@ -1088,6 +1190,29 @@
                 
                 const user = Object.values(this.users).find(u => u.username === this.currentUser);
                 return user && user.permissions.includes(permission);
+            }
+
+            // Vérifier si l'utilisateur peut gérer d'autres membres
+            canManageMembers() {
+                return this.hasPermission('manage_members');
+            }
+
+            // Obtenir le niveau hiérarchique de l'utilisateur
+            getUserLevel() {
+                if (!this.currentUser) return 999;
+                const user = Object.values(this.users).find(u => u.username === this.currentUser);
+                return user ? user.level : 999;
+            }
+
+            // Vérifier si l'utilisateur peut gérer un autre utilisateur
+            canManageUser(targetUser) {
+                if (!this.currentUser || !targetUser) return false;
+                if (!this.canManageMembers()) return false;
+                
+                const currentLevel = this.getUserLevel();
+                const targetLevel = this.users[targetUser] ? this.users[targetUser].level : 999;
+                
+                return currentLevel < targetLevel; // Plus le niveau est bas, plus l'autorité est élevée
             }
 
             initNavigation() {
@@ -1204,10 +1329,57 @@
                 });
                 document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
                 
+                // Mettre à jour le contenu selon l'onglet
+                if (tabName === 'members') {
+                    this.updateMembersList();
+                }
+                
                 // Réinitialiser la navigation par secteur
                 this.currentSector = null;
                 this.currentCountry = null;
                 this.updateBreadcrumb();
+            }
+
+            // Mettre à jour la liste des membres
+            updateMembersList() {
+                const membersList = document.getElementById('members-list');
+                membersList.innerHTML = '';
+                
+                // Trier les utilisateurs par niveau hiérarchique
+                const sortedUsers = Object.entries(this.users).sort((a, b) => a[1].level - b[1].level);
+                
+                sortedUsers.forEach(([userId, user]) => {
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = 'modern-card mb-3';
+                    
+                    const canManage = this.canManageUser(userId);
+                    const isCurrentUser = user.username === this.currentUser;
+                    
+                    memberDiv.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5>${user.username}</h5>
+                                <p class="mb-1">${this.getRoleDisplayName(user.role)}</p>
+                                <small class="text-muted">Niveau ${user.level}</small>
+                                ${isCurrentUser ? '<span class="badge bg-primary ms-2">Vous</span>' : ''}
+                            </div>
+                            <div>
+                                ${canManage ? `
+                                    <button class="btn btn-sm btn-warning" onclick="app.editMember('${userId}')">
+                                        <i class="fas fa-edit"></i> Modifier
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                Permissions: ${user.permissions.join(', ')}
+                            </small>
+                        </div>
+                    `;
+                    
+                    membersList.appendChild(memberDiv);
+                });
             }
 
             // Système d'escouades
