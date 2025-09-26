@@ -1,9 +1,7 @@
-const { createClient } = require('@supabase/supabase-js');
+const { neon } = require('@netlify/neon');
 
-// Configuration Supabase
-const supabaseUrl = process.env.SUPABASE_URL || 'https://imusodotctrnyzahkwzu.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltdXNvZG90Y3Rybnl6YWhrd3p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4NDY4ODUsImV4cCI6MjA3NDQyMjg4NX0.MEv9fsWoa3kLyskO8ASbT2Skfa9b--jbyRjHNpbaWqw';
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Configuration Neon (automatique via NETLIFY_DATABASE_URL)
+const sql = neon(); // Utilise automatiquement NETLIFY_DATABASE_URL
 
 // Données des points par défaut
 const defaultPoints = [
@@ -99,29 +97,29 @@ exports.handler = async (event, context) => {
         // Route /api/init
         if (path === '/api/init' && method === 'GET') {
             // Supprimer tous les points existants
-            await supabase.from('capture_points').delete().neq('id', '');
+            await sql`DELETE FROM capture_points`;
             
             // Supprimer tous les joueurs existants
-            await supabase.from('kiri_players').delete().neq('id', 0);
+            await sql`DELETE FROM kiri_players`;
             
             // Supprimer tout l'historique des combats
-            await supabase.from('combat_history').delete().neq('id', 0);
+            await sql`DELETE FROM combat_history`;
             
             // Réinitialiser les stats des factions
-            await supabase.from('faction_stats').update({
-                total_points: 0,
-                total_attacks: 0,
-                total_defenses: 0,
-                successful_attacks: 0,
-                successful_defenses: 0,
-                winrate: 0.00
-            }).neq('id', 0);
+            await sql`UPDATE faction_stats SET 
+                total_points = 0,
+                total_attacks = 0,
+                total_defenses = 0,
+                successful_attacks = 0,
+                successful_defenses = 0,
+                winrate = 0.00`;
             
             // Insérer les nouveaux points
-            const { error } = await supabase.from('capture_points').insert(defaultPoints);
-            
-            if (error) {
-                throw error;
+            for (const point of defaultPoints) {
+                await sql`
+                    INSERT INTO capture_points (id, name, country, sector, captured_by, protection_timer)
+                    VALUES (${point.id}, ${point.name}, ${point.country}, ${point.sector}, ${point.captured_by}, ${point.protection_timer})
+                `;
             }
             
             return {
@@ -132,7 +130,7 @@ exports.handler = async (event, context) => {
                 },
                 body: JSON.stringify({ 
                     success: true, 
-                    message: '✅ Base de données complètement initialisée avec succès !',
+                    message: '✅ Base de données complètement initialisée avec succès sur Neon !',
                     pointsCreated: defaultPoints.length 
                 })
             };
@@ -140,13 +138,7 @@ exports.handler = async (event, context) => {
 
         // Route /api/points
         if (path === '/api/points' && method === 'GET') {
-            const { data, error } = await supabase
-                .from('capture_points')
-                .select('*');
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`SELECT * FROM capture_points`;
             
             return {
                 statusCode: 200,
@@ -163,18 +155,12 @@ exports.handler = async (event, context) => {
             const pointId = path.split('/')[3];
             const { capturedBy, protectionTimer } = JSON.parse(event.body || '{}');
             
-            const { data, error } = await supabase
-                .from('capture_points')
-                .update({ 
-                    captured_by: capturedBy,
-                    protection_timer: protectionTimer ? new Date(protectionTimer).toISOString() : null
-                })
-                .eq('id', pointId)
-                .select();
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`
+                UPDATE capture_points 
+                SET captured_by = ${capturedBy}, protection_timer = ${protectionTimer ? new Date(protectionTimer).toISOString() : null}
+                WHERE id = ${pointId}
+                RETURNING *
+            `;
             
             if (!data || data.length === 0) {
                 return {
@@ -199,14 +185,7 @@ exports.handler = async (event, context) => {
 
         // Route /api/players - Récupérer tous les joueurs Kiri
         if (path === '/api/players' && method === 'GET') {
-            const { data, error } = await supabase
-                .from('kiri_players')
-                .select('*')
-                .order('net', { ascending: false });
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`SELECT * FROM kiri_players ORDER BY net DESC`;
             
             return {
                 statusCode: 200,
@@ -222,14 +201,19 @@ exports.handler = async (event, context) => {
         if (path === '/api/players' && method === 'POST') {
             const playerData = JSON.parse(event.body || '{}');
             
-            const { data, error } = await supabase
-                .from('kiri_players')
-                .upsert(playerData, { onConflict: 'name' })
-                .select();
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`
+                INSERT INTO kiri_players (name, winrate, attacks, defenses, points_won, points_lost, net)
+                VALUES (${playerData.name}, ${playerData.winrate}, ${playerData.attacks}, ${playerData.defenses}, ${playerData.points_won}, ${playerData.points_lost}, ${playerData.net})
+                ON CONFLICT (name) DO UPDATE SET
+                    winrate = EXCLUDED.winrate,
+                    attacks = EXCLUDED.attacks,
+                    defenses = EXCLUDED.defenses,
+                    points_won = EXCLUDED.points_won,
+                    points_lost = EXCLUDED.points_lost,
+                    net = EXCLUDED.net,
+                    updated_at = NOW()
+                RETURNING *
+            `;
             
             return {
                 statusCode: 200,
@@ -245,14 +229,11 @@ exports.handler = async (event, context) => {
         if (path === '/api/combat-history' && method === 'POST') {
             const combatData = JSON.parse(event.body || '{}');
             
-            const { data, error } = await supabase
-                .from('combat_history')
-                .insert(combatData)
-                .select();
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`
+                INSERT INTO combat_history (point_id, point_name, action_type, faction, squad_members, success)
+                VALUES (${combatData.point_id}, ${combatData.point_name}, ${combatData.action_type}, ${combatData.faction}, ${JSON.stringify(combatData.squad_members)}, ${combatData.success})
+                RETURNING *
+            `;
             
             return {
                 statusCode: 200,
@@ -266,13 +247,7 @@ exports.handler = async (event, context) => {
 
         // Route /api/faction-stats - Récupérer les stats des factions
         if (path === '/api/faction-stats' && method === 'GET') {
-            const { data, error } = await supabase
-                .from('faction_stats')
-                .select('*');
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`SELECT * FROM faction_stats`;
             
             return {
                 statusCode: 200,
@@ -288,15 +263,18 @@ exports.handler = async (event, context) => {
         if (path === '/api/faction-stats' && method === 'PUT') {
             const { factionName, ...statsData } = JSON.parse(event.body || '{}');
             
-            const { data, error } = await supabase
-                .from('faction_stats')
-                .update(statsData)
-                .eq('faction_name', factionName)
-                .select();
-                
-            if (error) {
-                throw error;
-            }
+            const data = await sql`
+                UPDATE faction_stats 
+                SET total_points = ${statsData.total_points},
+                    total_attacks = ${statsData.total_attacks},
+                    total_defenses = ${statsData.total_defenses},
+                    successful_attacks = ${statsData.successful_attacks},
+                    successful_defenses = ${statsData.successful_defenses},
+                    winrate = ${statsData.winrate},
+                    updated_at = NOW()
+                WHERE faction_name = ${factionName}
+                RETURNING *
+            `;
             
             return {
                 statusCode: 200,
