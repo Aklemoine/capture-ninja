@@ -740,19 +740,25 @@
                 }
             }
 
-            // Sauvegarder un point dans MongoDB
+            // Sauvegarder un point dans Supabase
             async savePointToDatabase(point) {
                 try {
-                    await fetch(`/api/points/${point.id}`, {
+                    const response = await fetch(`/api/points/${point.id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             capturedBy: point.capturedBy,
-                            protectionTimer: point.protectionTimer
+                            protectionTimer: point.protectionTimer ? point.protectionTimer.toISOString() : null
                         })
                     });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    
+                    console.log('✅ Point sauvegardé:', point.id);
                 } catch (error) {
                     console.error('❌ Erreur lors de la sauvegarde:', error);
                 }
@@ -1387,23 +1393,23 @@
                 return mockPoints[countryName] || [];
             }
 
-            handleAttackSuccess(pointId) {
-                this.performCombatAction(pointId, 'attack-success');
+            async handleAttackSuccess(pointId) {
+                await this.performCombatAction(pointId, 'attack-success');
                 this.showSuccessMessage('✅ Attaque réussie !');
             }
 
-            handleAttackFailed(pointId) {
-                this.performCombatAction(pointId, 'attack-failed');
+            async handleAttackFailed(pointId) {
+                await this.performCombatAction(pointId, 'attack-failed');
                 this.showSuccessMessage('❌ Attaque ratée !');
             }
 
-            handleDefenseSuccess(pointId) {
-                this.performCombatAction(pointId, 'defense-success');
+            async handleDefenseSuccess(pointId) {
+                await this.performCombatAction(pointId, 'defense-success');
                 this.showSuccessMessage('🛡️ Défense réussie !');
             }
 
-            handleDefenseFailed(pointId) {
-                this.performCombatAction(pointId, 'defense-failed');
+            async handleDefenseFailed(pointId) {
+                await this.performCombatAction(pointId, 'defense-failed');
                 this.showSuccessMessage('💥 Défense ratée !');
             }
 
@@ -1417,7 +1423,7 @@
                 this.currentCapturePointId = null;
             }
 
-            handleCapture() {
+            async handleCapture() {
                 const faction = document.getElementById('capture-faction').value;
                 const duration = parseInt(document.getElementById('capture-duration').value);
                 
@@ -1426,17 +1432,17 @@
                     return;
                 }
                 
-                this.performCombatAction(this.currentCapturePointId, 'capture', faction, duration);
+                await this.performCombatAction(this.currentCapturePointId, 'capture', faction, duration);
                 this.showSuccessMessage(`🏴 Point capturé par ${faction} ! (Protection: ${duration} minutes)`);
                 this.closeCaptureModal();
             }
 
-            handleLiberate(pointId) {
-                this.performCombatAction(pointId, 'liberate');
+            async handleLiberate(pointId) {
+                await this.performCombatAction(pointId, 'liberate');
                 this.showSuccessMessage('🔓 Point libéré !');
             }
 
-            performCombatAction(pointId, actionType, faction = null, customDuration = null) {
+            async performCombatAction(pointId, actionType, faction = null, customDuration = null) {
                 // Trouver le point dans toutes les données
                 const allPoints = this.getAllPoints();
                 const point = allPoints.find(p => p.id === pointId);
@@ -1472,7 +1478,7 @@
                 }
 
                 // Sauvegarder dans MongoDB
-                this.savePointToDatabase(point);
+                await this.savePointToDatabase(point);
 
                 // Rafraîchir l'affichage
                 this.refreshDisplay();
