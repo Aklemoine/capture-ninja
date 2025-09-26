@@ -587,7 +587,7 @@
         </div>
     </div>
 
-    <!-- Modal pour capture directe -->
+    <!--  pour capture directe -->
     <div id="capture-modal" class="modal-overlay d-none">
         <div class="modal-content">
             <h3>🏴 Capturer Directement</h3>
@@ -620,7 +620,7 @@
         </div>
     </div>
 
-    <!-- Modal pour saisie des escouades -->
+    <!--   saisie des escouades -->
     <div id="squad-modal" class="modal-overlay d-none">
         <div class="modal-content">
             <h3>👥 Saisie de l'Escouade</h3>
@@ -773,7 +773,34 @@
                 }
             }
 
-            // Sauvegarder un joueur Kiri dans Supabase
+            // Sauvegarder un point dans la base de données
+            async savePointToDatabase(point) {
+                try {
+                    const response = await fetch(`/api/points/${point.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            capturedBy: point.capturedBy,
+                            protectionTimer: point.protectionTimer ? point.protectionTimer.toISOString() : null
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    console.log('✅ Point sauvegardé:', result);
+                    return result;
+                } catch (error) {
+                    console.error('❌ Erreur lors de la sauvegarde du point:', error);
+                    throw error;
+                }
+            }
+
+            // Sauvegarder un joueur Kiri dans la base de données
             async savePlayerToDatabase(player) {
                 try {
                     const response = await fetch('/api/players', {
