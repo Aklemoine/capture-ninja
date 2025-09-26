@@ -1,7 +1,7 @@
 const { neon } = require('@neondatabase/serverless');
 
-// Configuration Neon (automatique via NETLIFY_DATABASE_URL)
-const sql = neon(); // Utilise automatiquement NETLIFY_DATABASE_URL
+// Configuration Neon avec variable d'environnement explicite
+const sql = neon(process.env.NETLIFY_DATABASE_URL);
 
 // Données des points par défaut
 const defaultPoints = [
