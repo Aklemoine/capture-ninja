@@ -1,8 +1,8 @@
 const { createClient } = require('@supabase/supabase-js');
 
 // Configuration Supabase
-const supabaseUrl = process.env.SUPABASE_URL || 'https://your-project.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'your-anon-key';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://imusodotctrnyzahkwzu.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImltdXNvZG90Y3Rybnl6YWhrd3p1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4NDY4ODUsImV4cCI6MjA3NDQyMjg4NX0.MEv9fsWoa3kLyskO8ASbT2Skfa9b--jbyRjHNpbaWqw';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Données des points par défaut

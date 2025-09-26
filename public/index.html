@@ -717,7 +717,7 @@
                 this.kiriPlayers.clear();
             }
 
-            // Charger les points depuis MongoDB
+            // Charger les points depuis Supabase
             async loadPointsFromDatabase() {
                 try {
                     const response = await fetch('/api/points');
@@ -732,7 +732,7 @@
                         this.pointsData[point.country].push(point);
                     });
                     
-                    console.log('✅ Points chargés depuis MongoDB:', points.length);
+                    console.log('✅ Points chargés depuis Supabase:', points.length);
                 } catch (error) {
                     console.error('❌ Erreur lors du chargement des points:', error);
                     // Fallback vers les données par défaut
