@@ -731,7 +731,16 @@
                         if (!this.pointsData[point.country]) {
                             this.pointsData[point.country] = [];
                         }
-                        this.pointsData[point.country].push(point);
+                        // Convertir les propriétés de la DB vers le format frontend
+                        const frontendPoint = {
+                            id: point.id,
+                            name: point.name,
+                            country: point.country,
+                            sector: point.sector,
+                            capturedBy: point.captured_by, // DB -> Frontend
+                            protectionTimer: point.protection_timer ? new Date(point.protection_timer) : null
+                        };
+                        this.pointsData[point.country].push(frontendPoint);
                     });
                     
                     // Charger les joueurs Kiri
