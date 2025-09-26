@@ -767,9 +767,10 @@
                     });
                 } catch (error) {
                     console.error('❌ Erreur lors du chargement des données:', error);
-                    // Fallback vers les données par défaut
-                    this.pointsData = this.initializePointsData();
+                    // Ne pas utiliser les données mockées, garder les données vides
+                    this.pointsData = {};
                     this.initializeKiriPlayers();
+                    alert('❌ Erreur de connexion à la base de données. Veuillez réessayer.');
                 }
             }
 
@@ -1649,9 +1650,15 @@
                 this.refreshDisplay();
 
                 // Sauvegarder dans la base de données en arrière-plan (non bloquant)
-                this.savePointToDatabase(point).catch(error => {
+                this.savePointToDatabase(point).then(() => {
+                    console.log('✅ Point sauvegardé avec succès');
+                    // Recharger les données depuis la DB pour s'assurer de la cohérence
+                    this.loadAllDataFromDatabase().then(() => {
+                        this.refreshDisplay();
+                    });
+                }).catch(error => {
                     console.error('Erreur lors de la sauvegarde:', error);
-                    // Optionnel : afficher une notification d'erreur discrète
+                    alert('❌ Erreur lors de la sauvegarde. Les données peuvent ne pas être persistantes.');
                 });
             }
 
